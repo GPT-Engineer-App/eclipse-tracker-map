@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Box, Heading, Text, Spinner } from "@chakra-ui/react";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import EclipsePath from "../components/EclipsePath";
 
 const Index = () => {
   const [eclipseData, setEclipseData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch eclipse data from an API or load from a local file
     fetchEclipseData()
       .then((data) => {
         setEclipseData(data);
@@ -15,25 +15,19 @@ const Index = () => {
       })
       .catch((error) => {
         console.error("Error fetching eclipse data:", error);
+        setError(error.message);
         setIsLoading(false);
       });
   }, []);
 
   const fetchEclipseData = async () => {
-    // Replace this with your actual data fetching logic
-    // You can use an API or load data from a local file
-    return Promise.resolve([
-      {
-        date: "2023-04-08",
-        path: [
-          { lat: 37.7749, lng: -122.4194, name: "San Francisco, CA" },
-          { lat: 40.7128, lng: -74.006, name: "New York City, NY" },
-          // Add more coordinates for the eclipse path
-        ],
-        landmarks: ["Golden Gate Bridge", "Statue of Liberty"],
-      },
-      // Add more eclipse data objects
-    ]);
+    try {
+      const response = await fetch("https://docs.radiantdrift.com/solar-eclipses/eclipse-paths");
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw new Error("Failed to fetch eclipse data");
+    }
   };
 
   return (
@@ -46,21 +40,19 @@ const Index = () => {
           <Spinner size="xl" />
           <Text mt={4}>Loading eclipse data...</Text>
         </Box>
+      ) : error ? (
+        <Box textAlign="center" mt={8}>
+          <Text color="red.500">{error}</Text>
+        </Box>
       ) : (
         <Box mt={8}>
-          {/* Render the 3D map */}
+          {}
           <Box width="100%" height="600px" bgImage="https://images.unsplash.com/photo-1524661135-423995f22d0b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1MDcxMzJ8MHwxfHNlYXJjaHwxfHx3b3JsZCUyMG1hcHxlbnwwfHx8fDE3MTI2MzAwMTZ8MA&ixlib=rb-4.0.3&q=80&w=1080" bgSize="cover" bgPosition="center" position="relative">
             {eclipseData.map((eclipse, index) => (
               <Box key={index}>
-                {/* Render the eclipse path */}
-                <Box position="absolute" top={0} left={0} width="100%" height="100%" pointerEvents="none">
-                  {eclipse.path.map((coordinate, index) => (
-                    <Box key={index} position="absolute" top={`${50 - (coordinate.lat / 180) * 100}%`} left={`${50 + (coordinate.lng / 360) * 100}%`} transform="translate(-50%, -50%)" color="red.500" fontSize="2xl">
-                      <FaMapMarkerAlt />
-                    </Box>
-                  ))}
-                </Box>
-                {/* Render eclipse details */}
+                {}
+                <EclipsePath path={eclipse.path} />
+                {}
                 <Box mt={4}>
                   <Heading as="h2" size="lg">
                     Solar Eclipse on {eclipse.date}
